@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "family-pick"
-  }
+  },
+  "targets": {
+    "family-pick": {
+      "hosting": {
+        "divi": [
+          "divi"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
