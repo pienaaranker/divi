@@ -7,7 +7,7 @@
   export let currentPlayerName = '';
   
   let editingItem: Item | null = null;
-  let viewMode: 'card' | 'list' = 'card';
+  let viewMode: 'card' | 'list' = 'list';
   
   function handleEdit(item: Item) {
     editingItem = item;
