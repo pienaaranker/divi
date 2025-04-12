@@ -1,6 +1,13 @@
 [
   {
-    "origin": ["http://localhost:5173", "http://localhost:3000", "http://localhost:4173"],
+    "origin": [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "http://localhost:4173",
+      "https://divi-game.web.app",
+      "https://divi-game.firebaseapp.com",
+      "https://divi--family-pick.europe-west4.hosted.app/"
+    ],
     "method": ["GET", "POST", "PUT", "DELETE", "HEAD"],
     "maxAgeSeconds": 3600,
     "responseHeader": ["Content-Type", "Authorization", "Content-Length", "User-Agent", "x-goog-*"]

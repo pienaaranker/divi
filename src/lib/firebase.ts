@@ -329,6 +329,16 @@ async function compressImage(file: File, maxSizeMB: number = 5): Promise<File> {
  */
 export async function uploadFile(file: File, path: string): Promise<string> {
   if (!browser || !firebaseConfigured || !storage) {
+    console.error('Firebase Storage configuration:', {
+      browser,
+      firebaseConfigured,
+      storage: !!storage,
+      config: {
+        apiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
+        projectId: !!import.meta.env.VITE_FIREBASE_PROJECT_ID,
+        storageBucket: !!import.meta.env.VITE_FIREBASE_STORAGE_BUCKET
+      }
+    });
     throw new Error('Firebase Storage is not configured');
   }
 
@@ -359,25 +369,40 @@ export async function uploadFile(file: File, path: string): Promise<string> {
     const storageRef = ref(storage, path);
     
     // Upload the file
+    console.log('Starting upload to path:', path);
     const snapshot = await uploadBytes(storageRef, fileToUpload);
+    console.log('Upload completed:', snapshot);
     
     // Get the download URL
     const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log('Download URL obtained:', downloadURL);
     
     return downloadURL;
   } catch (err: any) {
-    console.error('Error uploading file:', err);
+    console.error('Error uploading file:', {
+      error: err,
+      code: err.code,
+      message: err.message,
+      serverResponse: err.serverResponse,
+      name: err.name,
+      stack: err.stack
+    });
+    
     // Provide more specific error messages based on the error code
     if (err.code === 'storage/unauthorized') {
-      throw new Error('Upload failed: Unauthorized access');
+      throw new Error('Upload failed: Unauthorized access. Please check Firebase Storage rules.');
     } else if (err.code === 'storage/canceled') {
       throw new Error('Upload was canceled');
     } else if (err.code === 'storage/unknown') {
-      throw new Error('Upload failed: Unknown error occurred');
+      throw new Error('Upload failed: Unknown error occurred. Please check console for details.');
     } else if (err.code === 'storage/invalid-checksum') {
       throw new Error('Upload failed: File corruption detected');
     } else if (err.code === 'storage/retry-limit-exceeded') {
       throw new Error('Upload failed: Network error, please try again');
+    } else if (err.code === 'storage/quota-exceeded') {
+      throw new Error('Upload failed: Storage quota exceeded');
+    } else if (err.code === 'storage/unauthenticated') {
+      throw new Error('Upload failed: User is not authenticated');
     } else {
       throw new Error(`Upload failed: ${err.message || 'Unknown error'}`);
     }
