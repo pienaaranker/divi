@@ -68,7 +68,7 @@
   {#if isLoading}
     <div class="p-8 text-center">
       <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p>Loading game...</p>
+      <p>Loading divi...</p>
     </div>
   {:else if error}
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -79,9 +79,9 @@
     </div>
   {:else if !isOrganizer}
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-      <p>You do not have permission to edit this game.</p>
+      <p>You do not have permission to edit this divi.</p>
       <div class="mt-4">
-        <a href="/game/{gameId}" class="text-blue-600 underline">Return to game</a>
+        <a href="/game/{gameId}" class="text-blue-600 underline">Return to divi</a>
       </div>
     </div>
   {:else}

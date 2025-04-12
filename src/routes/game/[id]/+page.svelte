@@ -22,7 +22,7 @@
         const gameExists = await joinGame(gameId);
         
         if (!gameExists) {
-          error = 'Game not found. Please check the URL and try again.';
+          error = 'Divi not found. Please check the URL and try again.';
           return;
         }
         
@@ -36,8 +36,8 @@
         
         isLoading = false;
       } catch (err) {
-        console.error('Error loading game:', err);
-        error = 'Error loading game. Please try again.';
+        console.error('Error loading divi:', err);
+        error = 'Error loading divi. Please try again.';
         isLoading = false;
       }
     }
@@ -61,8 +61,8 @@
       error = '';
       isLoading = false;
     } catch (err) {
-      console.error('Error joining game:', err);
-      error = 'Error joining game. Please try again.';
+      console.error('Error joining divi:', err);
+      error = 'Error joining divi. Please try again.';
       isLoading = false;
     }
   }
@@ -72,7 +72,7 @@
   {#if isLoading}
     <div class="p-8 text-center">
       <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p>Loading game...</p>
+      <p>Loading divi...</p>
     </div>
   {:else if error}
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">

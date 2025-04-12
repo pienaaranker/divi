@@ -14,7 +14,7 @@
       window.location.href = '/setup';
     } catch (err) {
       console.error("Error creating new game:", err);
-      alert("There was an error creating a new game. Please try again.");
+      alert("There was an error creating a new divi. Please try again.");
     }
   }
   
@@ -22,7 +22,7 @@
   async function joinExistingGame() {
     const gameId = gameIdInput.trim();
     if (!gameId) {
-      error = 'Please enter a valid game ID';
+      error = 'Please enter a valid divi ID';
       return;
     }
     
@@ -36,7 +36,7 @@
       gameStore.joinExistingGame(gameId);
       goto(`/game/${gameId}`);
     } else {
-      error = 'Game not found. Please check the ID and try again.';
+      error = 'Divi not found. Please check the ID and try again.';
     }
   }
   
@@ -66,7 +66,7 @@
     
     <div class="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <h2 class="text-2xl font-bold mb-4">Join Existing Divi</h2>
-      <p class="text-gray-600 mb-6">Enter a game ID to join an existing game session.</p>
+      <p class="text-gray-600 mb-6">Enter a divi ID to join an existing divi session.</p>
       
       <form on:submit|preventDefault={joinExistingGame} class="space-y-4">
         <div>
@@ -76,7 +76,7 @@
             id="gameId"
             bind:value={gameIdInput}
             class="w-full px-3 py-2 border rounded-md mt-1"
-            placeholder="Enter game ID"
+            placeholder="Enter divi ID"
             required
             disabled={isLoading}
           />
@@ -99,9 +99,9 @@
   <div class="mt-12 text-center text-sm text-gray-500">
     <h3 class="font-semibold text-base mb-2">How It Works</h3>
     <ul class="space-y-2">
-      <li>Create a new game and add items you want to divide</li>
+      <li>Create a new divi and add items you want to divide</li>
       <li>Add participants who will take turns picking items</li>
-      <li>Share the game link with all participants</li>
+      <li>Share the divi link with all participants</li>
       <li>Take turns selecting items until everything is picked</li>
     </ul>
   </div>

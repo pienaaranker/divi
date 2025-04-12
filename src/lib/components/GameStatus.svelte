@@ -14,7 +14,7 @@
   }
   
   function resetGame() {
-    if (confirm('Are you sure you want to reset the game? All progress will be lost.')) {
+    if (confirm('Are you sure you want to reset the divi? All progress will be lost.')) {
       gameStore.createNewGame();
       window.location.href = '/setup';
     }
@@ -57,7 +57,7 @@
   {/if}
   
   <div class="mt-4">
-    <h3 class="font-medium mb-1">Share this game:</h3>
+    <h3 class="font-medium mb-1">Share this divi:</h3>
     <div class="flex">
       <input 
         type="text" 

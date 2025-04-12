@@ -3,7 +3,7 @@ import type { PageLoad } from './$types';
 
 export const load: PageLoad = ({ params }) => {
   if (!params.id) {
-    throw error(404, 'Game not found');
+    throw error(404, 'Divi not found');
   }
   
   return {

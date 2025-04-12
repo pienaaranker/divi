@@ -13,22 +13,22 @@
   
   onMount(() => {
     if (browser) {
-      console.log("Setup page mounted, initializing game...");
+      console.log("Setup page mounted, initializing divi...");
       
       try {
         // If there's no active game or no game ID, create a new one
         if (!$gameStore.id) {
-          console.log("No game ID found, creating new game");
+          console.log("No game ID found, creating new divi");
           const newGameId = gameStore.createNewGame();
-          console.log("New game created with ID:", newGameId);
+          console.log("New divi created with ID:", newGameId);
         } else {
-          console.log("Game already exists with ID:", $gameStore.id);
+          console.log("Divi already exists with ID:", $gameStore.id);
         }
         
-        // Add a timeout to ensure the game is initialized
+        // Add a timeout to ensure the divi is initialized
         setTimeout(() => {
           // Always mark as not loading after initialization
-          console.log("Game initialization complete");
+          console.log("Divi initialization complete");
           isLoading = false;
           
           // If there's no player name yet, prompt for it after loading is complete
@@ -53,8 +53,8 @@
           }
         }, 500);
       } catch (err) {
-        console.error("Error initializing game:", err);
-        error = "There was an error setting up your game. Please try again.";
+        console.error("Error initializing divi:", err);
+        error = "There was an error setting up your divi. Please try again.";
         isLoading = false;
       }
     }
@@ -94,7 +94,7 @@
   {#if isLoading}
     <div class="p-8 text-center">
       <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p>Setting up your game...</p>
+      <p>Setting up your divi...</p>
     </div>
   {:else if error}
     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
