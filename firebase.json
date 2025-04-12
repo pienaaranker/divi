@@ -33,7 +33,8 @@
           }
         ]
       }
-    ]
+    ],
+    "site": "divi"
   },
   "storage": {
     "rules": "storage.rules"
