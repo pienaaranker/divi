@@ -253,6 +253,27 @@ function createGameStore() {
       });
     },
 
+    reorderParticipants: (newOrder: Participant[]) => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        // Ensure we have all the same participants, just in a new order
+        const currentParticipants = new Set(state.participants.map(p => p.name));
+        const newParticipants = new Set(newOrder.map(p => p.name));
+        
+        if (currentParticipants.size !== newParticipants.size ||
+            ![...currentParticipants].every(name => newParticipants.has(name))) {
+          return state; // Don't update if the participants don't match exactly
+        }
+        
+        return {
+          ...state,
+          participants: newOrder,
+          currentTurnIndex: 0 // Reset turn index to first participant
+        };
+      });
+    },
+
     removeParticipant: (name: string) => {
       if (!gameStateStore) return;
       
