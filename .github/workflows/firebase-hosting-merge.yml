@@ -14,7 +14,9 @@ jobs:
           cache: 'npm'
       
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          npm install -g svelte-kit
+          npm install
       
       - name: Build
         run: npm run build
