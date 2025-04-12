@@ -135,7 +135,17 @@
       <!-- Right Column -->
       <div class="space-y-8">
         <div class="bg-white border rounded-lg p-6 shadow-sm">
-          <h2 class="text-xl font-semibold mb-4 text-dark">Participants</h2>
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-dark">Participants</h2>
+            {#if $gameStore.participants && $gameStore.participants.length > 1}
+              <button 
+                on:click={() => gameStore.randomizeParticipants()}
+                class="px-4 py-2 text-white bg-primary rounded-md hover:bg-secondary"
+              >
+                Randomize Order
+              </button>
+            {/if}
+          </div>
           <ParticipantList participants={$gameStore.participants || []} canEdit={true} />
           
           {#if $gameStore.participants && $gameStore.participants.length > 0}

@@ -210,9 +210,66 @@ function createGameStore() {
           isOrganizer: isOrganizer
         };
         
+        // If this is the organizer, insert at a random position
+        if (isOrganizer) {
+          const participants = [...(state.participants || [])];
+          const randomIndex = Math.floor(Math.random() * (participants.length + 1));
+          participants.splice(randomIndex, 0, newParticipant);
+          
+          return {
+            ...state,
+            participants
+          };
+        }
+        
+        // Otherwise, add to the end as before
         return {
           ...state,
           participants: [...(state.participants || []), newParticipant]
+        };
+      });
+    },
+
+    randomizeParticipants: () => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        if (!state.participants || state.participants.length <= 1) return state;
+        
+        // Create a copy of participants array
+        const shuffledParticipants = [...state.participants];
+        
+        // Fisher-Yates shuffle algorithm
+        for (let i = shuffledParticipants.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledParticipants[i], shuffledParticipants[j]] = [shuffledParticipants[j], shuffledParticipants[i]];
+        }
+        
+        return {
+          ...state,
+          participants: shuffledParticipants,
+          currentTurnIndex: 0 // Reset turn index to first participant
+        };
+      });
+    },
+
+    reorderParticipants: (newOrder: Participant[]) => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        // Ensure we have all the same participants, just in a new order
+        const currentParticipants = new Set(state.participants.map(p => p.name));
+        const newParticipants = new Set(newOrder.map(p => p.name));
+        
+        if (currentParticipants.size !== newParticipants.size ||
+            ![...currentParticipants].every(name => newParticipants.has(name))) {
+          return state; // Don't update if the participants don't match exactly
+        }
+        
+        return {
+          ...state,
+          participants: newOrder,
+          currentTurnIndex: 0 // Reset turn index to first participant
         };
       });
     },
