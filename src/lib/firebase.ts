@@ -1,5 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, Firestore } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import type { FirebaseStorage } from 'firebase/storage';
 import { derived, writable, type Writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
@@ -29,7 +31,8 @@ function removeUndefinedValues(obj: any): any {
 // Check for Firebase configuration in environment variables
 let firebaseConfigured = false;
 let app = null;
-let db = null;
+let db: Firestore | null = null;
+let storage: FirebaseStorage | null = null;
 
 try {
   // Firebase configuration from environment variables
@@ -48,6 +51,7 @@ try {
     // Initialize Firebase
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+    storage = getStorage(app);
     firebaseConfigured = true;
   } else {
     console.warn("Firebase configuration is missing or incomplete. Using local storage fallback.");
@@ -232,5 +236,30 @@ export async function isParticipantNameTaken(gameId: string, name: string): Prom
   } catch (err) {
     console.error("Error checking participant name:", err);
     return false;
+  }
+}
+
+/**
+ * Upload a file to Firebase Storage and return the download URL
+ */
+export async function uploadFile(file: File, path: string): Promise<string> {
+  if (!browser || !firebaseConfigured || !storage) {
+    throw new Error('Firebase Storage is not configured');
+  }
+
+  try {
+    // Create a storage reference
+    const storageRef = ref(storage, path);
+    
+    // Upload the file
+    const snapshot = await uploadBytes(storageRef, file);
+    
+    // Get the download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    return downloadURL;
+  } catch (err) {
+    console.error('Error uploading file:', err);
+    throw err;
   }
 }
