@@ -1,0 +1,47 @@
+:root {
+  /* Primary Colors */
+  --divi-purple: #7D4FFF;
+  --white: #FFFFFF;
+
+  /* Secondary Colors */
+  --soft-lilac: #B89CFF;
+  --deep-indigo: #3E2D7C;
+
+  /* Neutral Colors */
+  --dark-charcoal: #2A2A2A;
+  --cool-gray: #E0E0E0;
+  --light-gray: #F7F7F7;
+}
+
+/* Common color combinations */
+.text-primary {
+  color: var(--divi-purple);
+}
+
+.text-secondary {
+  color: var(--deep-indigo);
+}
+
+.text-dark {
+  color: var(--dark-charcoal);
+}
+
+.bg-primary {
+  background-color: var(--divi-purple);
+}
+
+.bg-secondary {
+  background-color: var(--soft-lilac);
+}
+
+.bg-light {
+  background-color: var(--light-gray);
+}
+
+.border {
+  border-color: var(--cool-gray);
+}
+
+.hover-purple:hover {
+  background-color: var(--soft-lilac);
+} 

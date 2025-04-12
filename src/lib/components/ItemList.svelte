@@ -28,7 +28,7 @@
 {#if editingItem}
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-lg">
-      <h2 class="text-xl font-bold mb-4">Edit Item</h2>
+      <h2 class="text-xl font-bold mb-4 text-dark">Edit Item</h2>
       <ItemForm 
         editItem={editingItem} 
         on:close={() => editingItem = null} 
@@ -38,7 +38,7 @@
 {/if}
 
 {#if items.length === 0}
-  <div class="p-4 text-center text-gray-500">
+  <div class="p-4 text-center text-dark">
     No items available.
   </div>
 {:else}
@@ -48,20 +48,20 @@
         {#if item.imageUrl}
           <img src={item.imageUrl} alt={item.name} class="w-full h-48 object-cover" />
         {:else}
-          <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-            <span class="text-gray-400 text-xl">No Image</span>
+          <div class="w-full h-48 bg-light flex items-center justify-center">
+            <span class="text-dark text-xl">No Image</span>
           </div>
         {/if}
         
         <div class="p-4">
-          <h3 class="font-bold text-lg">{item.name}</h3>
+          <h3 class="font-bold text-lg text-dark">{item.name}</h3>
           
           {#if item.description}
-            <p class="text-gray-600 mt-1">{item.description}</p>
+            <p class="text-dark mt-1">{item.description}</p>
           {/if}
           
           {#if item.pickedBy}
-            <div class="mt-2 inline-block px-2 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
+            <div class="mt-2 inline-block px-2 py-1 bg-light text-primary text-sm rounded-full">
               Picked by: {item.pickedBy}
             </div>
           {/if}
@@ -71,13 +71,13 @@
               <div class="space-x-2">
                 <button 
                   on:click={() => handleEdit(item)}
-                  class="px-3 py-1 text-xs text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50"
+                  class="px-3 py-1 text-xs text-primary border border-primary rounded-md hover:bg-light"
                 >
                   Edit
                 </button>
                 <button 
                   on:click={() => handleDelete(item.id)}
-                  class="px-3 py-1 text-xs text-red-600 border border-red-600 rounded-md hover:bg-red-50"
+                  class="px-3 py-1 text-xs text-deep-indigo border border-deep-indigo rounded-md hover:bg-light"
                 >
                   Delete
                 </button>
@@ -87,7 +87,7 @@
             {#if allowPicking && !item.pickedBy}
               <button 
                 on:click={() => handlePick(item.id)}
-                class="px-3 py-1 text-xs text-green-600 bg-green-100 rounded-md hover:bg-green-200"
+                class="px-3 py-1 text-xs text-white bg-primary rounded-md hover:bg-secondary"
               >
                 Pick Item
               </button>

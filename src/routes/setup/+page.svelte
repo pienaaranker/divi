@@ -93,43 +93,43 @@
 <div class="container max-w-6xl mx-auto p-4">
   {#if isLoading}
     <div class="p-8 text-center">
-      <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p>Setting up your divi...</p>
+      <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-dark">Setting up your divi...</p>
     </div>
   {:else if error}
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+    <div class="bg-light border border-primary text-primary px-4 py-3 rounded">
       <p>{error}</p>
       <div class="mt-4">
-        <a href="/" class="text-blue-600 underline">Return to home</a>
+        <a href="/" class="text-primary hover:text-secondary underline">Return to home</a>
       </div>
     </div>
   {:else}
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">Setup Divi</h1>
+      <h1 class="text-3xl font-bold text-dark">Setup Divi</h1>
       
       <div class="flex items-center gap-4">
-        <div class="text-gray-600">
+        <div class="text-dark">
           Organizer: <span class="font-semibold">{$gameStore.playerName}</span>
         </div>
         
         <button 
           on:click={startGame}
-          class="px-6 py-2 text-white bg-green-600 rounded-md hover:bg-green-700"
+          class="px-6 py-2 text-white bg-primary rounded-md hover:bg-secondary"
         >
           Start Divi
         </button>
       </div>
     </div>
     
-    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+    <div class="mb-4 p-4 bg-light border border-primary rounded-md">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
         <div>
-          <p class="font-medium">Share this link to invite participants:</p>
-          <p class="text-sm text-blue-800 break-all">{gameStore.getShareableLink()}</p>
+          <p class="font-medium text-dark">Share this link to invite participants:</p>
+          <p class="text-sm text-primary break-all">{gameStore.getShareableLink()}</p>
         </div>
         <button 
           on:click={copyGameLink}
-          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 whitespace-nowrap"
+          class="px-4 py-2 bg-primary text-white rounded-md hover:bg-secondary whitespace-nowrap"
         >
           Copy Link
         </button>
@@ -140,12 +140,12 @@
       <!-- Left Column -->
       <div class="lg:col-span-2 space-y-8">
         <div class="bg-white border rounded-lg p-6 shadow-sm">
-          <h2 class="text-xl font-semibold mb-4">Add Items</h2>
+          <h2 class="text-xl font-semibold mb-4 text-dark">Add Items</h2>
           <ItemForm />
         </div>
         
         <div class="bg-white border rounded-lg p-6 shadow-sm">
-          <h2 class="text-xl font-semibold mb-4">Items</h2>
+          <h2 class="text-xl font-semibold mb-4 text-dark">Items</h2>
           <ItemList items={$gameStore.items || []} showActions={true} />
         </div>
       </div>

@@ -47,47 +47,47 @@
 
 <div class="container max-w-4xl mx-auto p-4">
   <div class="text-center mb-12">
-    <h1 class="text-4xl font-bold mb-2">Divi</h1>
-    <p class="text-lg text-gray-600">A simple app for turn-based item selection</p>
+    <h1 class="text-4xl font-bold mb-2 text-dark">Divi</h1>
+    <p class="text-lg text-dark">A simple app for turn-based item selection</p>
   </div>
   
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <div class="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-      <h2 class="text-2xl font-bold mb-4">Create New Divi</h2>
-      <p class="text-gray-600 mb-6">Start a new game where you can add items and invite participants to pick them.</p>
+      <h2 class="text-2xl font-bold mb-4 text-dark">Create New Divi</h2>
+      <p class="text-dark mb-6">Start a new game where you can add items and invite participants to pick them.</p>
       
       <button 
         on:click={createNewGame}
-        class="w-full px-4 py-3 text-center text-white bg-blue-600 rounded-md hover:bg-blue-700"
+        class="w-full px-4 py-3 text-center text-white bg-primary rounded-md hover:bg-secondary"
       >
         Create New Divi
       </button>
     </div>
     
     <div class="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-      <h2 class="text-2xl font-bold mb-4">Join Existing Divi</h2>
-      <p class="text-gray-600 mb-6">Enter a divi ID to join an existing divi session.</p>
+      <h2 class="text-2xl font-bold mb-4 text-dark">Join Existing Divi</h2>
+      <p class="text-dark mb-6">Enter a divi ID to join an existing divi session.</p>
       
       <form on:submit|preventDefault={joinExistingGame} class="space-y-4">
         <div>
-          <label for="gameId" class="block text-sm font-medium">Divi ID</label>
+          <label for="gameId" class="block text-sm font-medium text-dark">Divi ID</label>
           <input
             type="text"
             id="gameId"
             bind:value={gameIdInput}
-            class="w-full px-3 py-2 border rounded-md mt-1"
+            class="w-full px-3 py-2 border rounded-md mt-1 bg-light text-dark"
             placeholder="Enter divi ID"
             required
             disabled={isLoading}
           />
           {#if error}
-            <p class="text-red-600 text-sm mt-1">{error}</p>
+            <p class="text-primary text-sm mt-1">{error}</p>
           {/if}
         </div>
         
         <button 
           type="submit" 
-          class="w-full px-4 py-3 text-white bg-green-600 rounded-md hover:bg-green-700"
+          class="w-full px-4 py-3 text-white bg-primary rounded-md hover:bg-secondary disabled:bg-soft-lilac"
           disabled={isLoading}
         >
           {isLoading ? 'Checking...' : 'Join Divi'}
@@ -96,7 +96,7 @@
     </div>
   </div>
   
-  <div class="mt-12 text-center text-sm text-gray-500">
+  <div class="mt-12 text-center text-sm text-dark">
     <h3 class="font-semibold text-base mb-2">How It Works</h3>
     <ul class="space-y-2">
       <li>Create a new divi and add items you want to divide</li>

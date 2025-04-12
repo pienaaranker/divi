@@ -19,11 +19,12 @@
       isSubmitting = true;
       error = '';
       
-      // Prepare item data, filtering out undefined values
-      const itemData: Record<string, any> = { name };
-      
-      if (description) itemData.description = description;
-      if (imageUrl) itemData.imageUrl = imageUrl;
+      // Prepare item data
+      const itemData = {
+        name: name.trim(),
+        ...(description && { description: description.trim() }),
+        ...(imageUrl && { imageUrl: imageUrl.trim() })
+      };
       
       if (editItem?.id) {
         gameStore.updateItem(editItem.id, itemData);
@@ -51,30 +52,30 @@
 
 <form on:submit|preventDefault={handleSubmit} class="space-y-4">
   {#if error}
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+    <div class="bg-light border border-primary text-primary px-4 py-3 rounded">
       <p>{error}</p>
     </div>
   {/if}
 
   <div>
-    <label for="name" class="block text-sm font-medium">Item Name</label>
+    <label for="name" class="block text-sm font-medium text-dark">Item Name</label>
     <input
       type="text"
       id="name"
       bind:value={name}
       required
-      class="w-full px-3 py-2 border rounded-md"
+      class="w-full px-3 py-2 border rounded-md bg-light text-dark"
       placeholder="Enter item name"
       disabled={isSubmitting}
     />
   </div>
   
   <div>
-    <label for="description" class="block text-sm font-medium">Description (Optional)</label>
+    <label for="description" class="block text-sm font-medium text-dark">Description (Optional)</label>
     <textarea
       id="description"
       bind:value={description}
-      class="w-full px-3 py-2 border rounded-md"
+      class="w-full px-3 py-2 border rounded-md bg-light text-dark"
       placeholder="Enter item description"
       rows="3"
       disabled={isSubmitting}
@@ -82,12 +83,12 @@
   </div>
   
   <div>
-    <label for="imageUrl" class="block text-sm font-medium">Image URL (Optional)</label>
+    <label for="imageUrl" class="block text-sm font-medium text-dark">Image URL (Optional)</label>
     <input
       type="url"
       id="imageUrl"
       bind:value={imageUrl}
-      class="w-full px-3 py-2 border rounded-md"
+      class="w-full px-3 py-2 border rounded-md bg-light text-dark"
       placeholder="https://example.com/image.jpg"
       disabled={isSubmitting}
     />
@@ -98,7 +99,7 @@
       <button 
         type="button" 
         on:click={() => dispatch('close')}
-        class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+        class="px-4 py-2 text-dark bg-light rounded-md hover:bg-cool-gray"
         disabled={isSubmitting}
       >
         Cancel
@@ -106,7 +107,7 @@
     {/if}
     <button 
       type="submit" 
-      class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-400"
+      class="px-4 py-2 text-white bg-primary rounded-md hover:bg-secondary disabled:bg-soft-lilac"
       disabled={isSubmitting}
     >
       {#if isSubmitting}

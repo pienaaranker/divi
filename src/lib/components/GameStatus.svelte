@@ -22,7 +22,7 @@
 </script>
 
 <div class="bg-white border rounded-lg p-4 shadow-sm space-y-4">
-  <h2 class="text-xl font-semibold">Divi Status</h2>
+  <h2 class="text-xl font-semibold text-dark">Divi Status</h2>
   
   {#if $gameStore.started}
     <div>
@@ -30,25 +30,25 @@
         {#if $currentTurn.participant}
           <p class="font-medium">
             {#if $isCurrentPlayersTurn}
-              <span class="text-green-600">It's your turn to pick an item!</span>
+              <span class="text-primary">It's your turn to pick an item!</span>
             {:else}
-              <span>Waiting for <b>{$currentTurn.participant.name}</b> to pick...</span>
+              <span class="text-dark">Waiting for <b>{$currentTurn.participant.name}</b> to pick...</span>
             {/if}
           </p>
         {:else}
-          <p>No active participants.</p>
+          <p class="text-dark">No active participants.</p>
         {/if}
       {:else}
-        <p class="text-purple-600 font-medium">All items have been picked!</p>
+        <p class="text-primary font-medium">All items have been picked!</p>
       {/if}
     </div>
   {:else}
-    <p>
+    <p class="text-dark">
       Divi not started yet. 
       {#if $gameStore.participants?.length > 0}
         <button 
           on:click={() => gameStore.startGame()}
-          class="text-blue-600 underline"
+          class="text-primary hover:text-secondary underline"
         >
           Start now
         </button>
@@ -57,17 +57,17 @@
   {/if}
   
   <div class="mt-4">
-    <h3 class="font-medium mb-1">Share this divi:</h3>
+    <h3 class="font-medium mb-1 text-dark">Share this divi:</h3>
     <div class="flex">
       <input 
         type="text" 
         value={gameLink}
         readonly
-        class="flex-1 px-3 py-2 border rounded-l-md bg-gray-50 text-sm"
+        class="flex-1 px-3 py-2 border rounded-l-md bg-light text-sm text-dark"
       />
       <button 
         on:click={copyGameLink}
-        class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700"
+        class="px-4 py-2 bg-primary text-white rounded-r-md hover:bg-secondary"
       >
         Copy
       </button>
@@ -78,7 +78,7 @@
     <div class="mt-4">
       <button 
         on:click={resetGame}
-        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+        class="px-4 py-2 bg-deep-indigo text-white rounded-md hover:bg-secondary"
       >
         New Divi
       </button>
