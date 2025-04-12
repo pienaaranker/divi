@@ -240,6 +240,91 @@ export async function isParticipantNameTaken(gameId: string, name: string): Prom
 }
 
 /**
+ * Compress an image file using Canvas
+ */
+async function compressImage(file: File, maxSizeMB: number = 5): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Calculate new dimensions while maintaining aspect ratio
+        const MAX_WIDTH = 1920;
+        const MAX_HEIGHT = 1080;
+        
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+        
+        // Draw image with smooth scaling
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to blob with quality adjustment
+        let quality = 0.9;
+        let blob: Blob;
+        
+        const tryCompress = () => {
+          canvas.toBlob(
+            (b) => {
+              if (!b) {
+                reject(new Error('Failed to compress image'));
+                return;
+              }
+              
+              blob = b;
+              if (blob.size > maxSizeMB * 1024 * 1024 && quality > 0.1) {
+                quality -= 0.1;
+                tryCompress();
+              } else {
+                resolve(new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now()
+                }));
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        
+        tryCompress();
+      };
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+    };
+    reader.onerror = () => {
+      reject(new Error('Failed to read file'));
+    };
+  });
+}
+
+/**
  * Upload a file to Firebase Storage and return the download URL
  */
 export async function uploadFile(file: File, path: string): Promise<string> {
@@ -247,19 +332,54 @@ export async function uploadFile(file: File, path: string): Promise<string> {
     throw new Error('Firebase Storage is not configured');
   }
 
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    throw new Error('File must be an image');
+  }
+
   try {
+    let fileToUpload = file;
+    
+    // If file is over 5MB, try to compress it
+    if (file.size > 5 * 1024 * 1024) {
+      try {
+        fileToUpload = await compressImage(file);
+        console.log('Image compressed:', {
+          originalSize: file.size,
+          compressedSize: fileToUpload.size,
+          compressionRatio: ((file.size - fileToUpload.size) / file.size * 100).toFixed(2) + '%'
+        });
+      } catch (err) {
+        console.error('Error compressing image:', err);
+        throw new Error('Failed to compress image. Please try a smaller file.');
+      }
+    }
+
     // Create a storage reference
     const storageRef = ref(storage, path);
     
     // Upload the file
-    const snapshot = await uploadBytes(storageRef, file);
+    const snapshot = await uploadBytes(storageRef, fileToUpload);
     
     // Get the download URL
     const downloadURL = await getDownloadURL(snapshot.ref);
     
     return downloadURL;
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error uploading file:', err);
-    throw err;
+    // Provide more specific error messages based on the error code
+    if (err.code === 'storage/unauthorized') {
+      throw new Error('Upload failed: Unauthorized access');
+    } else if (err.code === 'storage/canceled') {
+      throw new Error('Upload was canceled');
+    } else if (err.code === 'storage/unknown') {
+      throw new Error('Upload failed: Unknown error occurred');
+    } else if (err.code === 'storage/invalid-checksum') {
+      throw new Error('Upload failed: File corruption detected');
+    } else if (err.code === 'storage/retry-limit-exceeded') {
+      throw new Error('Upload failed: Network error, please try again');
+    } else {
+      throw new Error(`Upload failed: ${err.message || 'Unknown error'}`);
+    }
   }
 }

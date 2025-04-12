@@ -12,6 +12,7 @@
   let error = '';
   let selectedFile: File | null = null;
   let uploadProgress = 0;
+  let statusMessage = '';
   
   const dispatch = createEventDispatcher();
   
@@ -21,6 +22,13 @@
       selectedFile = input.files[0];
       // Clear the URL input when a file is selected
       imageUrl = '';
+      
+      // Show compression message if file is large
+      if (selectedFile.size > 5 * 1024 * 1024) {
+        statusMessage = 'Large image detected. Will be compressed before upload.';
+      } else {
+        statusMessage = '';
+      }
     }
   }
   
@@ -30,6 +38,7 @@
     try {
       isSubmitting = true;
       error = '';
+      statusMessage = 'Processing...';
       
       let finalImageUrl = imageUrl;
       
@@ -37,10 +46,16 @@
       if (selectedFile) {
         try {
           const path = `items/${Date.now()}_${selectedFile.name}`;
+          if (selectedFile.size > 5 * 1024 * 1024) {
+            statusMessage = 'Compressing image...';
+          }
           finalImageUrl = await uploadFile(selectedFile, path);
-        } catch (err) {
+          statusMessage = '';
+        } catch (err: any) {
           console.error('Error uploading file:', err);
-          error = 'Failed to upload image. Please try again.';
+          error = err.message || 'Failed to upload image. Please try again.';
+          statusMessage = '';
+          isSubmitting = false;
           return;
         }
       }
@@ -63,14 +78,16 @@
       description = '';
       imageUrl = '';
       selectedFile = null;
+      statusMessage = '';
       
       if (editItem) {
         editItem = null;
         dispatch('close');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error saving item:', err);
-      error = 'Failed to save item. Please try again.';
+      error = err.message || 'Failed to save item. Please try again.';
+      statusMessage = '';
     } finally {
       isSubmitting = false;
     }
@@ -81,6 +98,12 @@
   {#if error}
     <div class="bg-light border border-primary text-primary px-4 py-3 rounded">
       <p>{error}</p>
+    </div>
+  {/if}
+
+  {#if statusMessage}
+    <div class="bg-light border border-primary text-primary px-4 py-3 rounded">
+      <p>{statusMessage}</p>
     </div>
   {/if}
 
