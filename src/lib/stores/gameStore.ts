@@ -305,6 +305,18 @@ function createGameStore() {
     // Get the ID of the current game
     getCurrentGameId: () => {
       return get(gameIdStore);
+    },
+    
+    // Update the current turn index
+    setCurrentTurnIndex: (index: number) => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        return {
+          ...state,
+          currentTurnIndex: index
+        };
+      });
     }
   };
   

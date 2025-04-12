@@ -12,6 +12,8 @@
   let isLoading = true;
   let error = '';
   let isOrganizer = false;
+  let selectedParticipant = '';
+  let isSaving = false;
   
   $: gameId = $page.params.id;
   
@@ -38,6 +40,11 @@
           return;
         }
         
+        // Set the initial selected participant to the current turn
+        if ($gameStore.currentTurnIndex >= 0 && $gameStore.participants) {
+          selectedParticipant = $gameStore.participants[$gameStore.currentTurnIndex].name;
+        }
+        
         isLoading = false;
       } catch (err) {
         console.error('Error loading game:', err);
@@ -48,18 +55,27 @@
   });
   
   function setNextTurn(participantName: string) {
-    const participantIndex = $gameStore.participants.findIndex((p: Participant) => p.name === participantName);
-    if (participantIndex !== -1) {
-      const currentState = $gameStore;
-      gameStore.setGameId(currentState.id);
-      gameStore.setPlayerName(currentState.playerName);
-      // Update the current turn index in the game state
-      const updatedState: GameState = {
-        ...currentState,
-        currentTurnIndex: participantIndex
-      };
-      // @ts-ignore - The store has an internal update method
-      gameStore.update((state: GameState) => updatedState);
+    selectedParticipant = participantName;
+  }
+  
+  async function saveNextTurn() {
+    if (!selectedParticipant) return;
+    
+    try {
+      isSaving = true;
+      
+      const participantIndex = $gameStore.participants.findIndex((p: Participant) => p.name === selectedParticipant);
+      if (participantIndex !== -1) {
+        // Update the current turn index using the new method
+        gameStore.setCurrentTurnIndex(participantIndex);
+        
+        alert('Next turn has been updated successfully!');
+      }
+    } catch (err) {
+      console.error('Error saving next turn:', err);
+      error = 'Error saving next turn. Please try again.';
+    } finally {
+      isSaving = false;
     }
   }
 </script>
@@ -125,21 +141,26 @@
           {#if $gameStore.participants && $gameStore.participants.length > 0}
             <div class="mt-6">
               <h3 class="font-medium mb-2 text-dark">Set Next Turn</h3>
-              <select 
-                class="w-full px-3 py-2 border rounded-md bg-light text-dark"
-                on:change={(e: Event) => {
-                  const target = e.target as HTMLSelectElement;
-                  if (target) {
-                    setNextTurn(target.value);
-                  }
-                }}
-              >
-                {#each $gameStore.participants as participant}
-                  <option value={participant.name}>
-                    {participant.name}
-                  </option>
-                {/each}
-              </select>
+              <div class="space-y-3">
+                <select 
+                  class="w-full px-3 py-2 border rounded-md bg-light text-dark"
+                  bind:value={selectedParticipant}
+                >
+                  {#each $gameStore.participants as participant}
+                    <option value={participant.name}>
+                      {participant.name}
+                    </option>
+                  {/each}
+                </select>
+                
+                <button 
+                  on:click={saveNextTurn}
+                  class="w-full px-4 py-2 text-white bg-primary rounded-md hover:bg-secondary disabled:bg-soft-lilac"
+                  disabled={isSaving || !selectedParticipant}
+                >
+                  {isSaving ? 'Saving...' : 'Save Next Turn'}
+                </button>
+              </div>
             </div>
           {/if}
         </div>
