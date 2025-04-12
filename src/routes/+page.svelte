@@ -54,7 +54,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <div class="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <h2 class="text-2xl font-bold mb-4 text-dark">Create New Divi</h2>
-      <p class="text-dark mb-6">Start a new game where you can add items and invite participants to pick them.</p>
+      <p class="text-dark mb-6">Start a new Divi where you can add items and invite participants to pick them.</p>
       
       <button 
         on:click={createNewGame}
