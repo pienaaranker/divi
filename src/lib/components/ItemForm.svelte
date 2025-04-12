@@ -13,8 +13,17 @@
   let selectedFile: File | null = null;
   let uploadProgress = 0;
   let statusMessage = '';
+  let uploadError = false;
   
   const dispatch = createEventDispatcher();
+  
+  function removeImage() {
+    imageUrl = '';
+    selectedFile = null;
+    error = '';
+    uploadError = false;
+    statusMessage = '';
+  }
   
   async function handleFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -56,6 +65,7 @@
           error = err.message || 'Failed to upload image. Please try again.';
           statusMessage = '';
           isSubmitting = false;
+          uploadError = true;
           return;
         }
       }
@@ -98,6 +108,15 @@
   {#if error}
     <div class="bg-light border border-primary text-primary px-4 py-3 rounded">
       <p>{error}</p>
+      {#if uploadError}
+        <button
+          type="button"
+          on:click={removeImage}
+          class="mt-2 px-3 py-1 text-sm text-white bg-primary rounded hover:bg-secondary"
+        >
+          Remove Image
+        </button>
+      {/if}
     </div>
   {/if}
 
