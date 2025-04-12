@@ -45,16 +45,51 @@ try {
     appId: import.meta.env.VITE_FIREBASE_APP_ID
   };
 
-  // Check if the API key is set
-  if (browser && firebaseConfig.apiKey && firebaseConfig.projectId) {
-    console.log("Firebase config found, initializing Firebase");
-    // Initialize Firebase
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    storage = getStorage(app);
-    firebaseConfigured = true;
+  // Debug environment variables
+  console.log('Environment variables:', {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY ? 'Set' : 'Not set',
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ? 'Set' : 'Not set',
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ? 'Set' : 'Not set',
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ? 'Set' : 'Not set',
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ? 'Set' : 'Not set',
+    appId: import.meta.env.VITE_FIREBASE_APP_ID ? 'Set' : 'Not set'
+  });
+
+  // Debug actual values (without sensitive data)
+  console.log('Firebase config values:', {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY?.slice(0, 5) + '...',
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID?.slice(0, 5) + '...'
+  });
+
+  // Check if we're in the browser
+  console.log('Browser environment:', browser);
+
+  // Initialize Firebase if we have the minimum required configuration
+  if (firebaseConfig.apiKey) {
+    console.log("Initializing Firebase with config");
+    try {
+      // Initialize Firebase
+      app = initializeApp(firebaseConfig);
+      // Only initialize Firestore and Storage in browser environment
+      if (browser) {
+        db = getFirestore(app);
+        storage = getStorage(app);
+      }
+      firebaseConfigured = true;
+      console.log("Firebase initialized successfully");
+    } catch (err) {
+      console.error("Error during Firebase initialization:", err);
+    }
   } else {
-    console.warn("Firebase configuration is missing or incomplete. Using local storage fallback.");
+    console.warn("Firebase configuration is missing or incomplete. Using local storage fallback.", {
+      browser,
+      hasApiKey: !!firebaseConfig.apiKey,
+      hasProjectId: !!firebaseConfig.projectId
+    });
   }
 } catch (err) {
   console.error("Error initializing Firebase:", err);
