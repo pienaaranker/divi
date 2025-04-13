@@ -105,4 +105,17 @@
       <li>Take turns selecting items until everything is picked</li>
     </ul>
   </div>
+
+  <div class="mt-8 text-center">
+    <a 
+      href="https://buymeacoffee.com/pienaaranker" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      style="background-color: #51c0b4;"
+      class="inline-flex items-center px-6 py-3 text-lg font-medium text-white rounded-lg shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200 hover:bg-[#45a99e]"
+    >
+      <span class="mr-2 text-xl">☕</span>
+      Buy me a coffee
+    </a>
+  </div>
 </div>
