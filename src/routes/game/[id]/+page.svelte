@@ -6,12 +6,15 @@
   import ItemList from '$lib/components/ItemList.svelte';
   import GameStatus from '$lib/components/GameStatus.svelte';
   import ParticipantList from '$lib/components/ParticipantList.svelte';
-  import { joinGame, isParticipantNameTaken } from '$lib/firebase';
+  import ExpiryTimer from '$lib/components/ExpiryTimer.svelte';
+  import { joinGame, isParticipantNameTaken, deleteGame } from '$lib/firebase';
   import { browser } from '$app/environment';
+  import { goto } from '$app/navigation';
   
   let showJoinForm = true;
   let isLoading = true;
   let error = '';
+  let isDeleting = false;
   
   $: gameId = $page.params.id;
   
@@ -66,6 +69,31 @@
       isLoading = false;
     }
   }
+  
+  async function handleDelete() {
+    if (!confirm('Are you sure you want to delete this divi? This action cannot be undone and all data will be permanently deleted.')) {
+      return;
+    }
+    
+    try {
+      isDeleting = true;
+      const success = await deleteGame(gameId);
+      
+      if (success) {
+        // Clear the game from local storage
+        localStorage.removeItem(`divi_games_${gameId}`);
+        // Redirect to home page
+        goto('/');
+      } else {
+        error = 'Failed to delete the divi. Please try again.';
+      }
+    } catch (err) {
+      console.error('Error deleting divi:', err);
+      error = 'Error deleting divi. Please try again.';
+    } finally {
+      isDeleting = false;
+    }
+  }
 </script>
 
 <div class="container max-w-6xl mx-auto p-4">
@@ -93,12 +121,24 @@
         </div>
         
         {#if $gameStore.participants && $gameStore.participants.some((p: { name: string; isOrganizer?: boolean }) => p.name === $gameStore.playerName && p.isOrganizer)}
-          <a 
-            href="/game/{gameId}/edit"
-            class="px-4 py-2 text-white bg-primary rounded-md hover:bg-secondary"
-          >
-            Edit Divi
-          </a>
+          <div class="flex gap-2">
+            <a 
+              href="/game/{gameId}/edit"
+              class="px-4 py-2 text-white bg-primary rounded-md hover:bg-secondary"
+            >
+              Edit Divi
+            </a>
+            <button 
+              on:click={handleDelete}
+              class="px-4 py-2 text-white rounded-md disabled:opacity-50"
+              style="background-color: #F59E0B;"
+              on:mouseover={(e) => e.currentTarget.style.backgroundColor = '#D97706'}
+              on:mouseout={(e) => e.currentTarget.style.backgroundColor = '#F59E0B'}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : 'End Divi'}
+            </button>
+          </div>
         {/if}
       </div>
     </div>
@@ -138,6 +178,10 @@
             canEdit={false}
             showTurnIndicator={true}
           />
+        </div>
+
+        <div class="text-sm text-dark/70 flex justify-center">
+          <ExpiryTimer />
         </div>
       </div>
     </div>
