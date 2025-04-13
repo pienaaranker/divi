@@ -14,7 +14,7 @@
   }
   
   function resetGame() {
-    if (confirm('Are you sure you want to reset the divi? All progress will be lost.')) {
+    if (confirm('Are you sure you want to reset the Divi? All progress will be lost.')) {
       gameStore.createNewGame();
       window.location.href = '/setup';
     }
@@ -22,7 +22,7 @@
 </script>
 
 <div class="bg-white border rounded-lg p-4 shadow-sm space-y-4">
-  <h2 class="text-xl font-semibold text-dark">Divi Status</h2>
+  <h2 class="text-xl font-semibold text-dark">Status</h2>
   
   {#if $gameStore.started}
     <div>

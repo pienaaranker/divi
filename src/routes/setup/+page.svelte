@@ -14,14 +14,14 @@
   
   onMount(() => {
     if (browser) {
-      console.log("Setup page mounted, initializing divi...");
+      console.log("Setup page mounted, initializing Divi...");
       
       try {
         // If there's no active game or no game ID, create a new one
         if (!$gameStore.id) {
-          console.log("No game ID found, creating new divi");
+          console.log("No game ID found, creating new Divi");
           const newGameId = gameStore.createNewGame();
-          console.log("New divi created with ID:", newGameId);
+          console.log("New Divi created with ID:", newGameId);
         } else {
           console.log("Divi already exists with ID:", $gameStore.id);
         }
@@ -46,7 +46,7 @@
               console.log("User canceled name prompt, redirecting to home");
               goto('/');
             }
-          } else if (!$gameStore.isUserParticipating()) {
+          } else if (!gameStore.isUserParticipating()) {
             // If the player has a stored name but is not a participant yet, add them
             console.log("Player already has name but is not participating, adding:", $gameStore.playerName);
             // Add the participant with organizer status
@@ -54,8 +54,8 @@
           }
         }, 500);
       } catch (err) {
-        console.error("Error initializing divi:", err);
-        error = "There was an error setting up your divi. Please try again.";
+        console.error("Error initializing Divi:", err);
+        error = "There was an error setting up your Divi. Please try again.";
         isLoading = false;
       }
     }
@@ -78,7 +78,14 @@
       gameStore.addParticipant($gameStore.playerName, true);
     }
     
+    // Start the game
     gameStore.startGame();
+    
+    // Initialize timer if enabled
+    if ($gameStore.timerEnabled) {
+      gameStore.updateCurrentTurnStartTime(Date.now());
+    }
+    
     goto(`/game/${$gameStore.id}`);
   }
   
@@ -98,7 +105,7 @@
   {#if isLoading}
     <div class="p-8 text-center">
       <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p class="text-dark">Setting up your divi...</p>
+      <p class="text-dark">Setting up your Divi...</p>
     </div>
   {:else if error}
     <div class="bg-light border border-primary text-primary px-4 py-3 rounded">
@@ -148,8 +155,8 @@
           </svg>
         </div>
         <div>
-          <p class="font-medium text-dark">Divi Expiry Information</p>
-          <p class="text-sm text-dark mt-1">This divi and all associated images will automatically be deleted after 30 days. Please make sure to complete your divi before the expiry date.</p>
+          <p class="font-medium text-dark">Expiry Information</p>
+          <p class="text-sm text-dark mt-1">This session and all associated images will automatically be deleted after 30 days. Please make sure to complete your Divi before the expiry date.</p>
           <div class="mt-2">
             <ExpiryTimer />
           </div>
@@ -186,6 +193,52 @@
             {/if}
           </div>
           <ParticipantList participants={$gameStore.participants || []} canEdit={true} />
+        </div>
+        
+        <div class="bg-white border rounded-lg p-6 shadow-sm">
+          <h2 class="text-xl font-semibold mb-4 text-dark">Timer Settings</h2>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="timerEnabled"
+                checked={$gameStore.timerEnabled}
+                on:change={(e) => gameStore.setTimerEnabled(e.target instanceof HTMLInputElement ? e.target.checked : false)}
+                class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+              />
+              <label for="timerEnabled" class="ml-2 text-dark">Enable turn timer</label>
+            </div>
+            
+            {#if $gameStore.timerEnabled}
+              <div class="flex items-center space-x-2">
+                <label for="timerDuration" class="text-dark">Time per turn:</label>
+                <select
+                  id="timerDuration"
+                  value={$gameStore.timerDuration}
+                  on:change={(e) => {
+                    const value = e.target instanceof HTMLSelectElement ? e.target.value : '60';
+                    if (value === 'custom') {
+                      const customTime = prompt('Enter custom time in seconds (10-600):', '90');
+                      if (customTime) {
+                        const seconds = Math.min(600, Math.max(10, Number(customTime)));
+                        gameStore.setTimerDuration(seconds);
+                      }
+                    } else {
+                      gameStore.setTimerDuration(Number(value));
+                    }
+                  }}
+                  class="border rounded-md px-2 py-1 text-dark"
+                >
+                  <option value={30}>30 seconds</option>
+                  <option value={60}>1 minute</option>
+                  <option value={120}>2 minutes</option>
+                  <option value={180}>3 minutes</option>
+                  <option value={300}>5 minutes</option>
+                  <option value="custom">Custom time...</option>
+                </select>
+              </div>
+            {/if}
+          </div>
         </div>
         
         <GameStatus currentPlayerName={$gameStore.playerName} />

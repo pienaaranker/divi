@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
-  import { gameStore, availableItems, currentTurn, isCurrentPlayersTurn } from '$lib/stores/gameStore';
+  import { gameStore, availableItems, currentTurn, isCurrentPlayersTurn, type Item } from '$lib/stores/gameStore';
   import JoinGame from '$lib/components/JoinGame.svelte';
   import ItemList from '$lib/components/ItemList.svelte';
   import GameStatus from '$lib/components/GameStatus.svelte';
   import ParticipantList from '$lib/components/ParticipantList.svelte';
   import ExpiryTimer from '$lib/components/ExpiryTimer.svelte';
+  import TurnTimer from '$lib/components/TurnTimer.svelte';
   import { joinGame, isParticipantNameTaken, deleteGame } from '$lib/firebase';
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
@@ -37,10 +38,15 @@
           showJoinForm = false;
         }
         
+        // Initialize timer if enabled and game has started
+        if ($gameStore.timerEnabled && $gameStore.started && !$gameStore.currentTurnStartTime) {
+          gameStore.updateCurrentTurnStartTime(Date.now());
+        }
+        
         isLoading = false;
       } catch (err) {
-        console.error('Error loading divi:', err);
-        error = 'Error loading divi. Please try again.';
+        console.error('Error loading Divi:', err);
+        error = 'Error loading Divi. Please try again.';
         isLoading = false;
       }
     }
@@ -64,14 +70,14 @@
       error = '';
       isLoading = false;
     } catch (err) {
-      console.error('Error joining divi:', err);
-      error = 'Error joining divi. Please try again.';
+      console.error('Error joining Divi:', err);
+      error = 'Error joining Divi. Please try again.';
       isLoading = false;
     }
   }
   
   async function handleDelete() {
-    if (!confirm('Are you sure you want to delete this divi? This action cannot be undone and all data will be permanently deleted.')) {
+    if (!confirm('Are you sure you want to end this session? This action cannot be undone and all data will be permanently deleted.')) {
       return;
     }
     
@@ -85,11 +91,11 @@
         // Redirect to home page
         goto('/');
       } else {
-        error = 'Failed to delete the divi. Please try again.';
+        error = 'Failed to delete the Divi. Please try again.';
       }
     } catch (err) {
-      console.error('Error deleting divi:', err);
-      error = 'Error deleting divi. Please try again.';
+      console.error('Error deleting Divi:', err);
+      error = 'Error deleting Divi. Please try again.';
     } finally {
       isDeleting = false;
     }
@@ -100,7 +106,7 @@
   {#if isLoading}
     <div class="p-8 text-center">
       <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p class="text-dark">Loading divi...</p>
+      <p class="text-dark">Loading Divi...</p>
     </div>
   {:else if error}
     <div class="bg-light border border-primary text-primary px-4 py-3 rounded">
@@ -162,7 +168,7 @@
         <div class="bg-white border rounded-lg p-6 shadow-sm">
           <h2 class="text-xl font-semibold mb-4 text-dark">Already Picked</h2>
           <ItemList 
-            items={$gameStore.items?.filter((item: { pickedBy: string | undefined }) => item.pickedBy) || []} 
+            items={$gameStore.items?.filter((item: Item) => item.pickedBy !== undefined) || []} 
             showActions={false}
           />
         </div>
@@ -179,6 +185,12 @@
             showTurnIndicator={true}
           />
         </div>
+
+        {#if $gameStore.started && $gameStore.timerEnabled}
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <TurnTimer />
+          </div>
+        {/if}
 
         <div class="text-sm text-dark/70 flex justify-center">
           <ExpiryTimer />

@@ -14,7 +14,7 @@
       window.location.href = '/setup';
     } catch (err) {
       console.error("Error creating new game:", err);
-      alert("There was an error creating a new divi. Please try again.");
+      alert("There was an error creating a new Divi. Please try again.");
     }
   }
   
@@ -22,7 +22,7 @@
   async function joinExistingGame() {
     const gameId = gameIdInput.trim();
     if (!gameId) {
-      error = 'Please enter a valid divi ID';
+      error = 'Please enter a valid Divi ID';
       return;
     }
     
@@ -66,7 +66,7 @@
     
     <div class="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
       <h2 class="text-2xl font-bold mb-4 text-dark">Join Existing Divi</h2>
-      <p class="text-dark mb-6">Enter a divi ID to join an existing divi session.</p>
+      <p class="text-dark mb-6">Enter a Divi ID to join an existing session.</p>
       
       <form on:submit|preventDefault={joinExistingGame} class="space-y-4">
         <div>
@@ -76,7 +76,7 @@
             id="gameId"
             bind:value={gameIdInput}
             class="w-full px-3 py-2 border rounded-md mt-1 bg-light text-dark"
-            placeholder="Enter divi ID"
+            placeholder="Enter Divi ID"
             required
             disabled={isLoading}
           />

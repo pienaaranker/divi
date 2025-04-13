@@ -27,7 +27,7 @@
       </svg>
     </div>
     <div>
-      <p class="text-sm font-medium text-dark">Time remaining:</p>
+      <p class="text-sm font-medium text-dark">Divi expires in:</p>
       <p class="text-sm text-primary">
         {timeRemaining.days} {timeRemaining.days === 1 ? 'day' : 'days'}
       </p>
@@ -41,7 +41,7 @@
       </svg>
     </div>
     <div>
-      <p class="text-sm font-medium text-dark">Time remaining:</p>
+      <p class="text-sm font-medium text-dark">Divi expires in:</p>
       <p class="text-sm text-primary">Calculating...</p>
     </div>
   </div>

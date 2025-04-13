@@ -24,6 +24,9 @@ export type GameState = {
   started: boolean;
   createdAt: number;
   expiryDate: number;  // Unix timestamp for when the game expires
+  timerEnabled: boolean;
+  timerDuration: number;  // in seconds
+  currentTurnStartTime?: number;  // Unix timestamp for when the current turn started
 };
 
 // Generate a random ID
@@ -60,7 +63,7 @@ function createGameStore() {
   const isLoading = writable<boolean>(false);
   
   // The actual game state store - will be created when a game is joined or created
-  let gameStateStore: any = null;
+  let gameStateStore: ReturnType<typeof createFirebaseStore<GameState>> | null = null;
   
   // Default state for a new game - ensuring no undefined values
   const createDefaultState = (id: string): GameState => {
@@ -74,12 +77,15 @@ function createGameStore() {
       currentTurnIndex: 0,
       started: false,
       createdAt: timestamp,
-      expiryDate: expiryDate
+      expiryDate: expiryDate,
+      timerEnabled: false,
+      timerDuration: 60,  // Default 60 seconds
+      currentTurnStartTime: undefined
     };
   };
   
   // Set up the game when an ID is provided
-  let unsubscribe: any = null;
+  let unsubscribe: (() => void) | null = null;
   
   gameIdStore.subscribe(gameId => {
     if (browser && gameId) {
@@ -105,7 +111,7 @@ function createGameStore() {
   
   // The combined store with all the game methods
   const store = {
-    subscribe: (cb: any) => {
+    subscribe: (cb: (value: GameState & { playerName: string; isLoading: boolean }) => void) => {
       // If no game is active, return an empty game state
       if (!gameStateStore) {
         const combined = derived(
@@ -161,7 +167,7 @@ function createGameStore() {
       gameStateStore.update((state: GameState) => {
         return {
           ...state,
-          items: [...state.items, newItem]
+          items: [...(state.items || []), newItem]
         };
       });
     },
@@ -203,7 +209,7 @@ function createGameStore() {
       
       gameStateStore.update((state: GameState) => {
         // Check if participant already exists
-        if (state.participants && state.participants.some(p => p.name === name)) {
+        if (state.participants && state.participants.some((p: Participant) => p.name === name)) {
           return state;
         }
         
@@ -213,7 +219,7 @@ function createGameStore() {
           itemsPicked: [],
           isOrganizer: isOrganizer
         };
-        
+
         // If this is the organizer, insert at a random position
         if (isOrganizer) {
           const participants = [...(state.participants || [])];
@@ -251,8 +257,7 @@ function createGameStore() {
         
         return {
           ...state,
-          participants: shuffledParticipants,
-          currentTurnIndex: 0 // Reset turn index to first participant
+          participants: shuffledParticipants
         };
       });
     },
@@ -297,7 +302,56 @@ function createGameStore() {
         return {
           ...state,
           started: true,
-          currentTurnIndex: 0
+          currentTurnIndex: 0,
+          currentTurnStartTime: state.timerEnabled ? Date.now() : undefined
+        };
+      });
+    },
+
+    advanceTurn: () => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        const nextTurnIndex = (state.currentTurnIndex + 1) % state.participants.length;
+        return {
+          ...state,
+          currentTurnIndex: nextTurnIndex,
+          currentTurnStartTime: state.timerEnabled ? Date.now() : undefined
+        };
+      });
+    },
+
+    setTimerEnabled: (enabled: boolean) => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        return {
+          ...state,
+          timerEnabled: enabled,
+          currentTurnStartTime: enabled && state.started ? Date.now() : undefined
+        };
+      });
+    },
+
+    setTimerDuration: (duration: number) => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        return {
+          ...state,
+          timerDuration: duration,
+          currentTurnStartTime: state.timerEnabled && state.started ? Date.now() : undefined
+        };
+      });
+    },
+
+    updateCurrentTurnStartTime: (timestamp: number) => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        return {
+          ...state,
+          currentTurnStartTime: timestamp
         };
       });
     },
@@ -332,7 +386,8 @@ function createGameStore() {
           ...state,
           items: updatedItems,
           participants: updatedParticipants,
-          currentTurnIndex: nextTurnIndex
+          currentTurnIndex: nextTurnIndex,
+          currentTurnStartTime: state.timerEnabled ? Date.now() : undefined
         };
       });
     },
@@ -359,8 +414,8 @@ function createGameStore() {
     // Check if the current user is a participant in the game
     isUserParticipating: () => {
       if (!gameStateStore) return false;
-      const state = get(gameStateStore);
-      return state.participants.some(p => p.name === get(playerNameStore));
+      const state = get(gameStateStore) as GameState;
+      return state.participants.some((p: Participant) => p.name === get(playerNameStore));
     },
     
     // Get the ID of the current game
@@ -375,7 +430,8 @@ function createGameStore() {
       gameStateStore.update((state: GameState) => {
         return {
           ...state,
-          currentTurnIndex: index
+          currentTurnIndex: index,
+          currentTurnStartTime: state.timerEnabled ? Date.now() : undefined
         };
       });
     }
@@ -397,17 +453,17 @@ export const gameStore = createGameStore();
 // Derived stores for frequently needed values
 export const availableItems = derived(
   gameStore,
-  $gameStore => ($gameStore.items || []).filter(item => !item.pickedBy)
+  ($gameStore: GameState & { playerName: string; isLoading: boolean }) => ($gameStore.items || []).filter((item: Item) => !item.pickedBy)
 );
 
 export const pickedItems = derived(
   gameStore,
-  $gameStore => ($gameStore.items || []).filter(item => item.pickedBy)
+  ($gameStore: GameState & { playerName: string; isLoading: boolean }) => ($gameStore.items || []).filter((item: Item) => item.pickedBy)
 );
 
 export const currentTurn = derived(
   gameStore,
-  $gameStore => ({
+  ($gameStore: GameState & { playerName: string; isLoading: boolean }) => ({
     participant: $gameStore.participants?.[$gameStore.currentTurnIndex] || null,
     index: $gameStore.currentTurnIndex
   })
@@ -415,15 +471,15 @@ export const currentTurn = derived(
 
 export const isGameActive = derived(
   gameStore,
-  $gameStore => $gameStore.started && 
+  ($gameStore: GameState & { playerName: string; isLoading: boolean }) => $gameStore.started && 
     $gameStore.participants?.length > 0 && 
-    ($gameStore.items || []).some(item => !item.pickedBy)
+    ($gameStore.items || []).some((item: Item) => !item.pickedBy)
 );
 
 // Calculate time remaining until game expiry
 export const timeUntilExpiry = derived(
   gameStore,
-  $gameStore => {
+  ($gameStore: GameState & { playerName: string; isLoading: boolean }) => {
     if (!$gameStore.expiryDate) return null;
     
     const now = Date.now();
@@ -443,6 +499,6 @@ export const timeUntilExpiry = derived(
 
 export const isCurrentPlayersTurn = derived(
   [gameStore, currentTurn],
-  ([$gameStore, $currentTurn]) => 
+  ([$gameStore, $currentTurn]: [GameState & { playerName: string; isLoading: boolean }, { participant: Participant | null; index: number }]) => 
     $currentTurn.participant?.name === $gameStore.playerName
 );
