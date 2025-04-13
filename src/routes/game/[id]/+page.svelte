@@ -85,7 +85,7 @@
     <JoinGame gameId={gameId} onJoin={handleJoin} />
   {:else}
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold text-dark">Divi</h1>
+      <img src="/Banner_final.png" alt="Divi" style="width: 100px; height: auto;" />
       
       <div class="flex items-center gap-4">
         <div class="text-dark">

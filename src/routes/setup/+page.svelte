@@ -91,6 +91,9 @@
 </script>
 
 <div class="container max-w-6xl mx-auto p-4">
+  <div class="text-center mb-8">
+    <img src="/Banner_final.png" alt="Divi" style="width: 250px; height: auto; margin: 0 auto; display: block;" />
+  </div>
   {#if isLoading}
     <div class="p-8 text-center">
       <div class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>

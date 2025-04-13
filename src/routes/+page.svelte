@@ -47,7 +47,7 @@
 
 <div class="container max-w-4xl mx-auto p-4">
   <div class="text-center mb-12">
-    <h1 class="text-4xl font-bold mb-2 text-dark">Divi</h1>
+    <img src="/Banner_final.png" alt="Divi" style="width: 250px; height: auto; margin: 0 auto; display: block;" class="mb-2" />
     <p class="text-lg text-dark">A simple app for turn-based item selection</p>
   </div>
   
