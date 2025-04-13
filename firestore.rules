@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /games/{gameId} {
+      allow read: if true;
+      allow create: if request.resource.data.expiryDate is number 
+        && request.resource.data.expiryDate > request.time.toMillis();
+      allow update: if request.resource.data.expiryDate is number 
+        && request.resource.data.expiryDate > request.time.toMillis();
+      allow delete: if true;
+    }
+  }
+} 

@@ -54,7 +54,7 @@
       // If a file is selected, upload it first
       if (selectedFile) {
         try {
-          const path = `items/${Date.now()}_${selectedFile.name}`;
+          const path = `items/${$gameStore.id}/${Date.now()}_${selectedFile.name}`;
           if (selectedFile.size > 5 * 1024 * 1024) {
             statusMessage = 'Compressing image...';
           }

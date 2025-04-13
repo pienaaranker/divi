@@ -5,9 +5,10 @@ rules_version = '2';
 //    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
-    match /items/{imageId} {
+    match /items/{gameId}/{fileName} {
       allow read: if true;
       allow write: if true;
+      allow delete: if true;
     }
   }
 }

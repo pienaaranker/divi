@@ -24,7 +24,7 @@
         const gameExists = await joinGame(gameId);
         
         if (!gameExists) {
-          error = 'Game not found. Please check the URL and try again.';
+          error = 'Divi not found. Please check the URL and try again.';
           return;
         }
         
@@ -36,7 +36,7 @@
                      $gameStore.participants.some((p: { name: string; isOrganizer?: boolean }) => p.name === $gameStore.playerName && p.isOrganizer);
         
         if (!isOrganizer) {
-          error = 'You do not have permission to edit this game.';
+          error = 'You do not have permission to edit this divi.';
           return;
         }
         
