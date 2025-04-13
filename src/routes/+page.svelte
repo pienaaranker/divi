@@ -96,17 +96,20 @@
     </div>
   </div>
   
-  <div class="mt-12 text-center text-sm text-dark">
-    <h3 class="font-semibold text-base mb-2">How It Works</h3>
-    <ul class="space-y-2">
+  <div class="mt-12 text-center">
+    <h3 class="text-2xl font-bold mb-4 text-dark">How It Works</h3>
+    <ul class="space-y-3 text-lg text-dark">
       <li>Create a new divi and add items you want to divide</li>
       <li>Add participants who will take turns picking items</li>
       <li>Share the divi link with all participants</li>
       <li>Take turns selecting items until everything is picked</li>
     </ul>
   </div>
-
-  <div class="mt-8 text-center">
+  
+  <div class="mt-8 text-center max-w-2xl mx-auto">
+    <p class="text-dark mb-4">
+      This tool keeps things fair, simple, and private—no ads, no tracking. If that's worth a coffee to you, I'd be grateful!
+    </p>
     <a 
       href="https://buymeacoffee.com/pienaaranker" 
       target="_blank" 
