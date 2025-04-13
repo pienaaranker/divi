@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { gameStore, availableItems, currentTurn, isCurrentPlayersTurn } from '$lib/stores/gameStore';
+  import { features } from '$lib/stores/featureStore';
   import JoinGame from '$lib/components/JoinGame.svelte';
   import ItemList from '$lib/components/ItemList.svelte';
   import GameStatus from '$lib/components/GameStatus.svelte';
@@ -184,6 +185,26 @@
           <ExpiryTimer />
         </div>
       </div>
+    </div>
+  {/if}
+
+  {#if !isLoading && !error && !showJoinForm}
+    <div class="mt-12 text-center max-w-2xl mx-auto">
+      {#if $features.donations}
+        <p class="text-dark mb-4">
+          This tool keeps things fair, simple, and private—no ads, no tracking. If that's worth a coffee to you, I'd be grateful!
+        </p>
+        <a 
+          href="https://buymeacoffee.com/pienaaranker" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style="background-color: #51c0b4;"
+          class="inline-flex items-center px-6 py-3 text-lg font-medium text-white rounded-lg shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200 hover:bg-[#45a99e]"
+        >
+          <span class="mr-2 text-xl">☕</span>
+          Buy me a coffee
+        </a>
+      {/if}
     </div>
   {/if}
 </div>

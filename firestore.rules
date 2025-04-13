@@ -9,5 +9,9 @@ service cloud.firestore {
         && request.resource.data.expiryDate > request.time.toMillis();
       allow delete: if true;
     }
+    match /features/{featureId} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 } 
