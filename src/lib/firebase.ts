@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, Firestore } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, Firestore, deleteDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'firebase/storage';
 import type { FirebaseStorage } from 'firebase/storage';
 import { derived, writable, type Writable } from 'svelte/store';
 import { browser } from '$app/environment';
@@ -441,5 +441,53 @@ export async function uploadFile(file: File, path: string): Promise<string> {
     } else {
       throw new Error(`Upload failed: ${err.message || 'Unknown error'}`);
     }
+  }
+}
+
+/**
+ * Helper function to delete a game and its associated data
+ */
+export async function deleteGame(gameId: string): Promise<boolean> {
+  if (!browser) return false;
+  
+  // If Firebase is not configured, use local storage
+  if (!firebaseConfigured || !db) {
+    console.log("Using local storage for deleting game:", gameId);
+    try {
+      const storageKey = `divi_games_${gameId}`;
+      localStorage.removeItem(storageKey);
+      return true;
+    } catch (err) {
+      console.error("Error deleting game from local storage:", err);
+      return false;
+    }
+  }
+  
+  // If Firebase is configured, delete from Firestore and Storage
+  try {
+    console.log("Deleting game from Firestore:", gameId);
+    const gameRef = doc(db, 'games', gameId);
+    await deleteDoc(gameRef);
+
+    // Delete associated images from Storage
+    if (storage) {
+      console.log("Deleting associated images from Storage:", gameId);
+      const storageRef = ref(storage, `items/${gameId}`);
+      try {
+        const result = await listAll(storageRef);
+        // Delete all files in the game's folder
+        const deletePromises = result.items.map(item => deleteObject(item));
+        await Promise.all(deletePromises);
+        console.log("Successfully deleted all images for game:", gameId);
+      } catch (storageErr) {
+        console.error("Error deleting images from Storage:", storageErr);
+        // Continue even if storage deletion fails
+      }
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Error deleting game:", err);
+    return false;
   }
 }

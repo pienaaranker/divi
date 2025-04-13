@@ -37,6 +37,21 @@
     "site": "divi"
   },
   "storage": {
-    "rules": "storage.rules"
+    "rules": "storage.rules",
+    "ttl": {
+      "items": {
+        "ttlSeconds": 2592000
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json",
+    "ttl": {
+      "games": {
+        "expiryField": "expiryDate",
+        "ttlSeconds": 2592000
+      }
+    }
   }
 }

@@ -23,6 +23,7 @@ export type GameState = {
   currentTurnIndex: number;
   started: boolean;
   createdAt: number;
+  expiryDate: number;  // Unix timestamp for when the game expires
 };
 
 // Generate a random ID
@@ -64,13 +65,16 @@ function createGameStore() {
   // Default state for a new game - ensuring no undefined values
   const createDefaultState = (id: string): GameState => {
     const timestamp = Date.now();
+    // Set expiry date to 30 days from creation by default
+    const expiryDate = timestamp + (30 * 24 * 60 * 60 * 1000);
     return {
       id: id || generateId(), // Generate ID if none provided
       items: [],
       participants: [],
       currentTurnIndex: 0,
       started: false,
-      createdAt: timestamp
+      createdAt: timestamp,
+      expiryDate: expiryDate
     };
   };
   
@@ -414,6 +418,27 @@ export const isGameActive = derived(
   $gameStore => $gameStore.started && 
     $gameStore.participants?.length > 0 && 
     ($gameStore.items || []).some(item => !item.pickedBy)
+);
+
+// Calculate time remaining until game expiry
+export const timeUntilExpiry = derived(
+  gameStore,
+  $gameStore => {
+    if (!$gameStore.expiryDate) return null;
+    
+    const now = Date.now();
+    const expiryDate = $gameStore.expiryDate;
+    const timeRemaining = expiryDate - now;
+    
+    if (timeRemaining <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    
+    const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+    
+    return { days, hours, minutes, seconds };
+  }
 );
 
 export const isCurrentPlayersTurn = derived(
