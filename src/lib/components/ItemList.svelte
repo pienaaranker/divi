@@ -93,12 +93,6 @@
               <p class="text-dark mt-1">{item.description}</p>
             {/if}
             
-            {#if item.pickedBy}
-              <div class="mt-2 inline-block px-2 py-1 bg-light text-primary text-sm rounded-full">
-                Picked by: {item.pickedBy}
-              </div>
-            {/if}
-            
             <div class="mt-4 flex justify-between">
               {#if showActions && !item.pickedBy}
                 <div class="space-x-2">
@@ -147,12 +141,6 @@
             
             {#if item.description}
               <p class="text-dark text-sm mt-1">{item.description}</p>
-            {/if}
-            
-            {#if item.pickedBy}
-              <div class="mt-1 inline-block px-2 py-1 bg-light text-primary text-sm rounded-full">
-                Picked by: {item.pickedBy}
-              </div>
             {/if}
           </div>
           

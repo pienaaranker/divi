@@ -23,6 +23,7 @@ export type GameState = {
   participants: Participant[];
   currentTurnIndex: number;
   started: boolean;
+  completed: boolean;  // New field to track if the game is completed
   createdAt: number;
   expiryDate: number;  // Unix timestamp for when the game expires
 };
@@ -74,6 +75,7 @@ function createGameStore() {
       participants: [],
       currentTurnIndex: 0,
       started: false,
+      completed: false,  // Initialize completed as false
       createdAt: timestamp,
       expiryDate: expiryDate
     };
@@ -300,6 +302,18 @@ function createGameStore() {
           ...state,
           started: true,
           currentTurnIndex: 0
+        };
+      });
+    },
+
+    // Add new method to complete the game
+    completeGame: () => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        return {
+          ...state,
+          completed: true
         };
       });
     },
