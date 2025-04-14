@@ -14,6 +14,7 @@ export type Participant = {
   name: string;
   itemsPicked: string[];
   isOrganizer?: boolean;
+  autoSkip?: boolean;
 };
 
 export type GameState = {
@@ -211,7 +212,8 @@ function createGameStore() {
         const newParticipant: Participant = {
           name: name,
           itemsPicked: [],
-          isOrganizer: isOrganizer
+          isOrganizer: isOrganizer,
+          autoSkip: false // Explicitly initialize autoSkip to false
         };
         
         // If this is the organizer, insert at a random position
@@ -376,6 +378,39 @@ function createGameStore() {
         return {
           ...state,
           currentTurnIndex: index
+        };
+      });
+    },
+    
+    // Skip the current turn
+    skipTurn: () => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        // Move to next turn
+        const nextTurnIndex = (state.currentTurnIndex + 1) % state.participants.length;
+        
+        return {
+          ...state,
+          currentTurnIndex: nextTurnIndex
+        };
+      });
+    },
+    
+    // Toggle auto-skip for a participant
+    toggleAutoSkip: (participantName: string) => {
+      if (!gameStateStore) return;
+      
+      gameStateStore.update((state: GameState) => {
+        const updatedParticipants = state.participants.map(p => 
+          p.name === participantName 
+            ? { ...p, autoSkip: !p.autoSkip }
+            : p
+        );
+        
+        return {
+          ...state,
+          participants: updatedParticipants
         };
       });
     }
