@@ -16,8 +16,30 @@
   let isLoading = true;
   let error = '';
   let isDeleting = false;
+  let autoSkip = false;
+  let showAutoSkipMessage = false;
+  let isGamePaused = false;
   
   $: gameId = $page.params.id;
+  $: currentParticipant = $gameStore.participants?.find((p: { name: string; autoSkip?: boolean }) => p.name === $gameStore.playerName);
+  $: isAutoSkipEnabled = currentParticipant?.autoSkip || false;
+  
+  // Check if all participants have auto-skip enabled
+  $: allParticipantsAutoSkip = $gameStore.participants?.length > 0 && 
+    $gameStore.participants?.every((p: { autoSkip?: boolean }) => p.autoSkip === true);
+  
+  // Show auto-skip message to organizer when all participants have auto-skip enabled
+  $: if (allParticipantsAutoSkip && $gameStore.participants && 
+      $gameStore.participants.some((p: { name: string; isOrganizer?: boolean }) => 
+        p.name === $gameStore.playerName && p.isOrganizer)) {
+    showAutoSkipMessage = true;
+    isGamePaused = true;
+  }
+  
+  // Update local autoSkip state when the game store changes
+  $: if (currentParticipant?.autoSkip !== undefined) {
+    autoSkip = currentParticipant.autoSkip;
+  }
   
   onMount(async () => {
     if (browser) {
@@ -95,6 +117,51 @@
       isDeleting = false;
     }
   }
+  
+  function handleSkipTurn() {
+    // Only skip if the game is not paused
+    if (!isGamePaused) {
+      gameStore.skipTurn();
+    }
+  }
+  
+  function toggleAutoSkip() {
+    // Update the game store
+    gameStore.toggleAutoSkip($gameStore.playerName);
+    
+    // The local state will be updated by the reactive statement above
+    // This ensures consistency between the UI and the game state
+  }
+  
+  function handleContinue() {
+    // Reset auto-skip for all participants
+    if ($gameStore.participants) {
+      $gameStore.participants.forEach((participant: { name: string }) => {
+        if (participant.name !== $gameStore.playerName) {
+          gameStore.toggleAutoSkip(participant.name);
+        }
+      });
+    }
+    
+    // Reset the game state
+    showAutoSkipMessage = false;
+    isGamePaused = false;
+    
+    // Force a skip to move to the next player
+    setTimeout(() => {
+      gameStore.skipTurn();
+    }, 500);
+  }
+  
+  // Auto-skip logic
+  $: if ($isCurrentPlayersTurn && isAutoSkipEnabled && !isGamePaused) {
+    // Use setTimeout to avoid immediate execution which might cause issues
+    setTimeout(() => {
+      if (!isGamePaused) { // Double-check that the game is still not paused
+        handleSkipTurn();
+      }
+    }, 1000); // Wait 1 second before auto-skipping
+  }
 </script>
 
 <div class="container max-w-6xl mx-auto p-4">
@@ -149,13 +216,43 @@
       <div class="lg:col-span-2 space-y-8">
         <div class="bg-white border rounded-lg p-6 shadow-sm">
           <h2 class="text-xl font-semibold mb-4 text-dark">
-            {$isCurrentPlayersTurn ? 'Your Turn - Choose an Item' : 'Available Items'}
+            {#if isGamePaused}
+              Game Paused - Waiting for organizer action
+            {:else if $isCurrentPlayersTurn}
+              Your Turn - Choose an Item
+            {:else}
+              Available Items
+            {/if}
           </h2>
+          
+          <div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            {#if $isCurrentPlayersTurn && !isGamePaused}
+              <button 
+                on:click={handleSkipTurn}
+                class="px-4 py-2 text-white rounded-md"
+                style="background-color: #7D4FFF;"
+                on:mouseover={(e) => e.currentTarget.style.backgroundColor = '#B89CFF'}
+                on:mouseout={(e) => e.currentTarget.style.backgroundColor = '#7D4FFF'}
+              >
+                Skip Turn
+              </button>
+            {/if}
+            
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                bind:checked={autoSkip} 
+                on:change={toggleAutoSkip}
+                class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+              />
+              <span class="text-dark">Auto-skip my turns</span>
+            </label>
+          </div>
           
           <ItemList 
             items={$availableItems} 
             showActions={false}
-            allowPicking={$isCurrentPlayersTurn}
+            allowPicking={$isCurrentPlayersTurn && !isGamePaused}
             currentPlayerName={$gameStore.playerName}
           />
         </div>
@@ -189,22 +286,39 @@
   {/if}
 
   {#if !isLoading && !error && !showJoinForm}
-    <div class="mt-12 text-center max-w-2xl mx-auto">
-      {#if $features.donations}
-        <p class="text-dark mb-4">
-          This tool keeps things fair, simple, and private—no ads, no tracking. If that's worth a coffee to you, I'd be grateful!
-        </p>
-        <a 
-          href="https://buymeacoffee.com/pienaaranker" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          style="background-color: #51c0b4;"
-          class="inline-flex items-center px-6 py-3 text-lg font-medium text-white rounded-lg shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-200 hover:bg-[#45a99e]"
-        >
-          <span class="mr-2 text-xl">☕</span>
-          Buy me a coffee
-        </a>
-      {/if}
+    <div class="mt-8 text-center text-sm text-dark/70">
+      <p>Divi ID: {gameId}</p>
+    </div>
+  {/if}
+  
+  {#if showAutoSkipMessage}
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-xl font-semibold mb-4 text-dark">All participants have opted to skip</h3>
+        <p class="mb-6 text-dark">Please choose an action:</p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button 
+            on:click={handleContinue}
+            class="px-4 py-2 text-white rounded-md"
+            style="background-color: #7D4FFF;"
+            on:mouseover={(e) => e.currentTarget.style.backgroundColor = '#B89CFF'}
+            on:mouseout={(e) => e.currentTarget.style.backgroundColor = '#7D4FFF'}
+          >
+            Continue
+          </button>
+          
+          <button 
+            on:click={handleDelete}
+            class="px-4 py-2 text-white rounded-md"
+            style="background-color: #F59E0B;"
+            on:mouseover={(e) => e.currentTarget.style.backgroundColor = '#D97706'}
+            on:mouseout={(e) => e.currentTarget.style.backgroundColor = '#F59E0B'}
+          >
+            End Divi
+          </button>
+        </div>
+      </div>
     </div>
   {/if}
 </div>
