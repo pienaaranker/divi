@@ -7,6 +7,7 @@
   import ItemList from '$lib/components/ItemList.svelte';
   import GameStatus from '$lib/components/GameStatus.svelte';
   import ParticipantList from '$lib/components/ParticipantList.svelte';
+  import ParticipantItems from '$lib/components/ParticipantItems.svelte';
   import ExpiryTimer from '$lib/components/ExpiryTimer.svelte';
   import { joinGame, isParticipantNameTaken, deleteGame } from '$lib/firebase';
   import { browser } from '$app/environment';
@@ -94,26 +95,18 @@
   }
   
   async function handleDelete() {
-    if (!confirm('Are you sure you want to delete this divi? This action cannot be undone and all data will be permanently deleted.')) {
+    if (!confirm('Are you sure you want to end this divi? This will mark it as completed and no more items can be picked.')) {
       return;
     }
     
     try {
       isDeleting = true;
-      const success = await deleteGame(gameId);
-      
-      if (success) {
-        // Clear the game from local storage
-        localStorage.removeItem(`divi_games_${gameId}`);
-        // Redirect to home page
-        goto('/');
-      } else {
-        error = 'Failed to delete the divi. Please try again.';
-      }
+      // Instead of deleting, complete the game
+      gameStore.completeGame();
+      isDeleting = false;
     } catch (err) {
-      console.error('Error deleting divi:', err);
-      error = 'Error deleting divi. Please try again.';
-    } finally {
+      console.error('Error completing divi:', err);
+      error = 'Error completing divi. Please try again.';
       isDeleting = false;
     }
   }
@@ -121,7 +114,13 @@
   function handleSkipTurn() {
     // Only skip if the game is not paused
     if (!isGamePaused) {
+      console.log('Skipping turn...');
+      console.log('Current turn index:', $gameStore.currentTurnIndex);
+      console.log('Number of participants:', $gameStore.participants?.length);
       gameStore.skipTurn();
+      console.log('Turn skipped. New turn index:', $gameStore.currentTurnIndex);
+    } else {
+      console.log('Game is paused, cannot skip turn');
     }
   }
   
@@ -196,16 +195,18 @@
             >
               Edit Divi
             </a>
-            <button 
-              on:click={handleDelete}
-              class="px-4 py-2 text-white rounded-md disabled:opacity-50"
-              style="background-color: #F59E0B;"
-              on:mouseover={(e) => e.currentTarget.style.backgroundColor = '#D97706'}
-              on:mouseout={(e) => e.currentTarget.style.backgroundColor = '#F59E0B'}
-              disabled={isDeleting}
-            >
-              {isDeleting ? 'Deleting...' : 'End Divi'}
-            </button>
+            {#if !$gameStore.completed}
+              <button 
+                on:click={handleDelete}
+                class="px-4 py-2 text-white rounded-md disabled:opacity-50"
+                style="background-color: #F59E0B;"
+                on:mouseover={(e) => e.currentTarget.style.backgroundColor = '#D97706'}
+                on:mouseout={(e) => e.currentTarget.style.backgroundColor = '#F59E0B'}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Ending...' : 'End Divi'}
+              </button>
+            {/if}
           </div>
         {/if}
       </div>
@@ -216,7 +217,9 @@
       <div class="lg:col-span-2 space-y-8">
         <div class="bg-white border rounded-lg p-6 shadow-sm">
           <h2 class="text-xl font-semibold mb-4 text-dark">
-            {#if isGamePaused}
+            {#if $gameStore.completed}
+              Completed Divi - Items
+            {:else if isGamePaused}
               Game Paused - Waiting for organizer action
             {:else if $isCurrentPlayersTurn}
               Your Turn - Choose an Item
@@ -226,7 +229,7 @@
           </h2>
           
           <div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            {#if $isCurrentPlayersTurn && !isGamePaused}
+            {#if $isCurrentPlayersTurn && !isGamePaused && !$gameStore.completed}
               <button 
                 on:click={handleSkipTurn}
                 class="px-4 py-2 text-white rounded-md"
@@ -238,31 +241,30 @@
               </button>
             {/if}
             
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input 
-                type="checkbox" 
-                bind:checked={autoSkip} 
-                on:change={toggleAutoSkip}
-                class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
-              />
-              <span class="text-dark">Auto-skip my turns</span>
-            </label>
+            {#if !$gameStore.completed}
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  bind:checked={autoSkip} 
+                  on:change={toggleAutoSkip}
+                  class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                />
+                <span class="text-dark">Auto-skip my turns</span>
+              </label>
+            {/if}
           </div>
           
           <ItemList 
             items={$availableItems} 
             showActions={false}
-            allowPicking={$isCurrentPlayersTurn && !isGamePaused}
+            allowPicking={$isCurrentPlayersTurn && !isGamePaused && !$gameStore.completed}
             currentPlayerName={$gameStore.playerName}
           />
         </div>
         
         <div class="bg-white border rounded-lg p-6 shadow-sm">
-          <h2 class="text-xl font-semibold mb-4 text-dark">Already Picked</h2>
-          <ItemList 
-            items={$gameStore.items?.filter((item: { pickedBy: string | undefined }) => item.pickedBy) || []} 
-            showActions={false}
-          />
+          <h2 class="text-xl font-semibold mb-4 text-dark">Picked Items</h2>
+          <ParticipantItems />
         </div>
       </div>
       

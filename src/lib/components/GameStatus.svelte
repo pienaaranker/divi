@@ -26,7 +26,10 @@
   
   {#if $gameStore.started}
     <div>
-      {#if $isGameActive}
+      {#if $gameStore.completed}
+        <p class="text-primary font-medium">Divi has been completed!</p>
+        <p class="text-dark mt-2">No more items can be picked.</p>
+      {:else if $isGameActive}
         {#if $currentTurn.participant}
           <p class="font-medium">
             {#if $isCurrentPlayersTurn}
