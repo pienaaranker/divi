@@ -12,6 +12,7 @@
   import { joinGame, isParticipantNameTaken, deleteGame } from '$lib/firebase';
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
+  import type { Item, Participant } from '$lib/stores/gameStore';
   
   let showJoinForm = true;
   let isLoading = true;
@@ -161,6 +162,61 @@
       }
     }, 1000); // Wait 1 second before auto-skipping
   }
+  
+  // Format text for sharing
+  function formatShareText() {
+    const gameLink = gameStore.getShareableLink();
+    let text = `Divi ${gameId}\nLink: ${gameLink}\n\n`;
+    
+    // Add unpicked items
+    const unpickedItems = $gameStore.items?.filter((item: Item) => !item.pickedBy) || [];
+    if (unpickedItems.length > 0) {
+      text += 'Unpicked items:\n';
+      unpickedItems.forEach((item: Item) => {
+        text += `- ${item.name}\n`;
+      });
+      text += '\n';
+    }
+    
+    // Add items for each participant
+    $gameStore.participants?.forEach((participant: Participant) => {
+      const participantItems = $gameStore.items?.filter((item: Item) => item.pickedBy === participant.name) || [];
+      if (participantItems.length > 0) {
+        text += `${participant.name}'s items:\n`;
+        participantItems.forEach((item: Item) => {
+          text += `- ${item.name}\n`;
+        });
+        text += '\n';
+      }
+    });
+    
+    return text;
+  }
+  
+  async function shareResults() {
+    if (browser) {
+      const text = formatShareText();
+      try {
+        // Check if it's a mobile device
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile && navigator.share) {
+          await navigator.share({
+            title: `Divi ${gameId} Results`,
+            text: text
+          });
+        } else {
+          await navigator.clipboard.writeText(text);
+          alert('Results copied to clipboard!');
+        }
+      } catch (err) {
+        console.error('Error sharing:', err);
+        // Fallback to clipboard if share fails
+        await navigator.clipboard.writeText(text);
+        alert('Results copied to clipboard!');
+      }
+    }
+  }
 </script>
 
 <div class="container max-w-6xl mx-auto p-4">
@@ -180,7 +236,9 @@
     <JoinGame gameId={gameId} onJoin={handleJoin} />
   {:else}
     <div class="flex justify-between items-center mb-8">
-      <img src="/Banner_final.png" alt="Divi" style="width: 100px; height: auto;" />
+      <a href="/">
+        <img src="/Banner_final.png" alt="Divi" style="width: 100px; height: auto;" />
+      </a>
       
       <div class="flex items-center gap-4">
         <div class="text-dark">
@@ -216,17 +274,28 @@
       <!-- Left Column - Items -->
       <div class="lg:col-span-2 space-y-8">
         <div class="bg-white border rounded-lg p-6 shadow-sm">
-          <h2 class="text-xl font-semibold mb-4 text-dark">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-dark">
+              {#if $gameStore.completed}
+                Completed Divi - Items
+              {:else if isGamePaused}
+                Game Paused - Waiting for organizer action
+              {:else if $isCurrentPlayersTurn}
+                Your Turn - Choose an Item
+              {:else}
+                Available Items
+              {/if}
+            </h2>
+            
             {#if $gameStore.completed}
-              Completed Divi - Items
-            {:else if isGamePaused}
-              Game Paused - Waiting for organizer action
-            {:else if $isCurrentPlayersTurn}
-              Your Turn - Choose an Item
-            {:else}
-              Available Items
+              <button 
+                on:click={shareResults}
+                class="px-4 py-2 text-white bg-primary rounded-md hover:bg-secondary"
+              >
+                Share Results
+              </button>
             {/if}
-          </h2>
+          </div>
           
           <div class="mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             {#if $isCurrentPlayersTurn && !isGamePaused && !$gameStore.completed}
