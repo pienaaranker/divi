@@ -1,0 +1,140 @@
+# Divi - Project Context
+
+## Project Overview
+Divi is a turn-based item selection web application built with SvelteKit and Firebase. It's designed for scenarios like dividing inheritance or any situation requiring fair, turn-based item distribution among multiple participants.
+
+## Technical Stack
+- Frontend Framework: SvelteKit 2.16.0
+- UI Library: Svelte 5.0.0
+- Backend/Database: Firebase/Firestore
+- Language: TypeScript 5.0.0
+- Styling: TailwindCSS
+- Build Tool: Vite 6.2.5
+
+## Project Structure
+```
+src/
+├── routes/           # SvelteKit routes
+│   ├── +page.svelte # Home page
+│   ├── setup/       # Game setup routes
+│   └── game/        # Game play routes
+├── lib/
+│   ├── components/  # Reusable components
+│   ├── stores/      # Svelte stores
+│   ├── styles/      # Global styles
+│   └── firebase.ts  # Firebase configuration
+```
+
+## Key Features
+1. Item Management
+   - Create, edit, and delete items
+   - Item pool management
+   - Turn-based selection system
+
+2. User Experience
+   - No registration required
+   - Name-based participation
+   - Shareable game links
+   - Mobile and desktop responsive
+
+3. Data Persistence
+   - Firebase/Firestore integration
+   - Real-time updates
+   - Game state management
+
+## Firebase Configuration
+- Firestore Rules:
+  - Games collection: Read access for all, write access with expiry date validation
+  - Features collection: Read-only access
+- Required Environment Variables:
+  - VITE_FIREBASE_API_KEY
+  - VITE_FIREBASE_AUTH_DOMAIN
+  - VITE_FIREBASE_PROJECT_ID
+  - VITE_FIREBASE_STORAGE_BUCKET
+  - VITE_FIREBASE_MESSAGING_SENDER_ID
+  - VITE_FIREBASE_APP_ID
+
+## Development Guidelines
+1. Code Style
+   - ESLint and Prettier configured
+   - TypeScript strict mode enabled
+   - Svelte best practices
+
+2. Available Scripts
+   - npm run dev: Start development server
+   - npm run build: Production build
+   - npm run preview: Preview production build
+   - npm run check: Type checking
+   - npm run format: Code formatting
+   - npm run lint: Linting
+
+3. Important Notes
+   - Always ask the user for confirmation before performing tasks outside of the codebase like firebase actions or git actions
+   - All Firebase operations must respect security rules
+   - Game state should be managed through Svelte stores
+   - Components should be responsive
+   - Type safety should be maintained
+
+## Common Tasks
+1. Adding New Features
+   - Create new routes in src/routes
+   - Add components in src/lib/components
+   - Update Firebase rules if needed
+   - Add necessary TypeScript types
+
+2. Modifying Existing Features
+   - Check related components in src/lib/components
+   - Review Firebase security rules
+   - Update types if necessary
+   - Test responsive design
+
+3. Database Operations
+   - Use Firebase.ts utilities
+   - Follow security rules
+   - Implement proper error handling
+   - Maintain data consistency
+
+## Security Considerations
+1. Firebase Rules
+   - Games have expiry dates
+   - Features are read-only
+   - Proper validation on writes
+
+2. Environment Variables
+   - Never commit .env files
+   - Use .env.example as template
+   - Keep API keys secure
+
+## Performance Guidelines
+1. Code Splitting
+   - Use SvelteKit's built-in code splitting
+   - Lazy load components when possible
+
+2. Data Management
+   - Use Svelte stores for state
+   - Implement proper cleanup
+   - Handle unsubscribe from Firebase listeners
+
+## Testing Considerations
+1. Component Testing
+   - Test responsive design
+   - Verify Firebase interactions
+   - Check state management
+
+2. Integration Testing
+   - Test game flow
+   - Verify turn-based logic
+   - Check data persistence
+
+## Deployment
+1. Firebase Hosting
+   - Configure firebase.json
+   - Set up proper redirects
+   - Handle SPA routing
+
+2. Environment Setup
+   - Configure production environment
+   - Set up proper Firebase project
+   - Enable necessary services
+
+Remember: This is a turn-based item selection application, not a game. Always refer to it as a "Divi" or "application" rather than a game in communications. 

@@ -1,4 +1,0 @@
-Since this is a new chat please familiarise yourself with the @Codebase and give me a short summary of what the app is about.
-
-Important things to remember for the remainder of this session:
-- Do not call or present to the user that the session a game, it is called a Divi

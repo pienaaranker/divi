@@ -4,6 +4,7 @@
   export let participants: Participant[] = [];
   export let canEdit = true;
   export let showTurnIndicator = false;
+  export let allowAdd = true;
   
   let newParticipantName = '';
   let draggedParticipant: Participant | null = null;
@@ -74,9 +75,7 @@
 </script>
 
 <div class="space-y-4">
-  <h2 class="text-xl font-semibold text-dark">Participants</h2>
-  
-  {#if canEdit}
+  {#if canEdit && allowAdd}
     <form on:submit|preventDefault={addParticipant} class="flex gap-2">
       <input
         type="text"
@@ -95,7 +94,11 @@
   
   {#if participants.length === 0}
     <div class="p-4 text-center text-dark border rounded-md">
-      No participants added yet.
+      {#if allowAdd}
+        No participants added yet.
+      {:else}
+        Participants will be added automatically as they join using the share link.
+      {/if}
     </div>
   {:else}
     <ul class="divide-y border rounded-md overflow-hidden">

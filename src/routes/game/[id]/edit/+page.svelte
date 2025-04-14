@@ -149,7 +149,7 @@
               </button>
             {/if}
           </div>
-          <ParticipantList participants={$gameStore.participants || []} canEdit={true} />
+          <ParticipantList participants={$gameStore.participants || []} canEdit={true} allowAdd={true} />
           
           {#if $gameStore.participants && $gameStore.participants.length > 0}
             <div class="mt-6">

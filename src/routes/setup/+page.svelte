@@ -62,11 +62,6 @@
   });
   
   function startGame() {
-    if (!$gameStore.participants || $gameStore.participants.length === 0) {
-      alert('Please add at least one participant before starting.');
-      return;
-    }
-    
     if (!$gameStore.items || $gameStore.items.length === 0) {
       alert('Please add at least one item before starting.');
       return;
@@ -185,7 +180,7 @@
               </button>
             {/if}
           </div>
-          <ParticipantList participants={$gameStore.participants || []} canEdit={true} />
+          <ParticipantList participants={$gameStore.participants || []} canEdit={true} allowAdd={false} />
         </div>
         
         <GameStatus currentPlayerName={$gameStore.playerName} />
